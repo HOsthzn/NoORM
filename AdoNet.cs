@@ -1,13 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-
-namespace RockEngineeringMVC.Utilities;
-
 public class AdoNet
 {
     private readonly string _connectionString;
@@ -50,16 +40,24 @@ public class AdoNet
         CommandType commandType = CommandType.StoredProcedure, SqlParameter[]? parameters = null,
         SqlParameter[]? outParameters = null)
     {
-        using SqlConnection connection = new(_connectionString); // create a new connection using the connection string
-        using SqlCommand
-            command = new(commandText, connection); // create a new command using the command text and connection
-        SetupCommand(command, commandText, commandType, parameters,
-            outParameters); // set up the command with the specified parameters and output parameters
+        try
+        {
+            using SqlConnection connection = new(_connectionString); 
+            using SqlCommand command = new(commandText, connection); 
+            SetupCommand(command, commandText, commandType, parameters, outParameters); 
 
-        connection.Open(); // open the connection to the database
-        command.ExecuteNonQuery(); // execute the command against the database
-
-        return command.Parameters; // return the collection of parameters used during the execution of the command
+            connection.Open(); 
+        
+            // execute the command against the database
+            command.ExecuteNonQuery();
+            // return the collection of parameters used during the execution of the command
+            return command.Parameters;
+        }
+        catch (Exception e)
+        {
+                Console.WriteLine(e);
+                throw;
+        }
     }
 
     /// <summary>
@@ -75,18 +73,25 @@ public class AdoNet
         CommandType commandType = CommandType.StoredProcedure, SqlParameter[]? parameters = null,
         SqlParameter[]? outParameters = null)
     {
-        using SqlConnection connection = new(_connectionString);
-        using SqlCommand command = new(commandText, connection);
-        SetupCommand(command, commandText, commandType, parameters, outParameters);
+        try
+        {
+            using SqlConnection connection = new(_connectionString);
+            using SqlCommand command = new(commandText, connection);
+            SetupCommand(command, commandText, commandType, parameters, outParameters);
 
-        // Open the connection asynchronously.
-        await connection.OpenAsync();
+            // Open the connection asynchronously.
+            await connection.OpenAsync();
 
-        // Execute the command asynchronously.
-        await command.ExecuteNonQueryAsync();
-
-        // Return the collection of output parameters.
-        return command.Parameters;
+            // Execute the command asynchronously.
+            await command.ExecuteNonQueryAsync();
+            // Return the collection of output parameters.
+            return command.Parameters;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
 
@@ -103,18 +108,26 @@ public class AdoNet
         CommandType commandType = CommandType.StoredProcedure,
         SqlParameter[]? parameters = null, SqlParameter[]? outParameters = null)
     {
-        using SqlConnection connection = new(_connectionString);
-        using SqlCommand command = new(commandText, connection);
-        SetupCommand(command, commandText, commandType, parameters, outParameters);
+        try
+        {
+            using SqlConnection connection = new(_connectionString);
+            using SqlCommand command = new(commandText, connection);
+            SetupCommand(command, commandText, commandType, parameters, outParameters);
 
-        // Open the connection asynchronously.
-        connection.Open();
+            // Open the connection asynchronously.
+            connection.Open();
 
-        // Execute the scalar command and convert the result to the specified type.
-        // Then, return a tuple containing the result and the output parameters.
-        return new Tuple<T, SqlParameterCollection>(
-            (T)Convert.ChangeType(command.ExecuteScalar(), typeof(T)),
-            command.Parameters);
+            // Execute the scalar command and convert the result to the specified type.
+            // Then, return a tuple containing the result and the output parameters.
+            return new Tuple<T, SqlParameterCollection>(
+                (T)Convert.ChangeType(command.ExecuteScalar(), typeof(T)),
+                command.Parameters);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
 
@@ -131,17 +144,25 @@ public class AdoNet
         CommandType commandType = CommandType.StoredProcedure,
         SqlParameter[]? parameters = null, SqlParameter[]? outParameters = null)
     {
-        using SqlConnection connection = new(_connectionString);
-        using SqlCommand command = new(commandText, connection);
-        SetupCommand(command, commandText, commandType, parameters, outParameters);
+        try
+        {
+            using SqlConnection connection = new(_connectionString);
+            using SqlCommand command = new(commandText, connection);
+            SetupCommand(command, commandText, commandType, parameters, outParameters);
 
-        // Open the connection asynchronously.
-        await connection.OpenAsync();
+            // Open the connection asynchronously.
+            await connection.OpenAsync();
 
-        // Execute the scalar command asynchronously and convert the result to the specified type.
-        // Then, return a tuple containing the result and the output parameters.
-        return new Tuple<T, SqlParameterCollection>(
-            (T)Convert.ChangeType(await command.ExecuteScalarAsync(), typeof(T)), command.Parameters);
+            // Execute the scalar command asynchronously and convert the result to the specified type.
+            // Then, return a tuple containing the result and the output parameters.
+            return new Tuple<T, SqlParameterCollection>(
+                (T)Convert.ChangeType(await command.ExecuteScalarAsync(), typeof(T)), command.Parameters);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
 
@@ -201,16 +222,24 @@ public class AdoNet
     public List<T> ExecuteReader<T>(string commandText, CommandType commandType = CommandType.StoredProcedure,
         SqlParameter[]? parameters = null, int selectTop = -1) where T : new()
     {
-        using SqlConnection connection = new(_connectionString);
-        using SqlCommand command = new(commandText, connection);
-        SetupCommand(command, commandText, commandType, parameters);
+        try
+        {
+            using SqlConnection connection = new(_connectionString);
+            using SqlCommand command = new(commandText, connection);
+            SetupCommand(command, commandText, commandType, parameters);
         
-        connection.Open();
+            connection.Open();
 
-        // Execute the command and get the data reader
-        using SqlDataReader reader = command.ExecuteReader();
-        // Map the results to a list of objects of the specified type
-        return MapResultsToModels<T>(reader, selectTop);
+            // Execute the command and get the data reader
+            using SqlDataReader reader = command.ExecuteReader();
+            // Map the results to a list of objects of the specified type
+            return MapResultsToModels<T>(reader, selectTop);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
     /// <summary>
@@ -226,15 +255,23 @@ public class AdoNet
         CommandType commandType = CommandType.StoredProcedure, SqlParameter[]? parameters = null, int selectTop = -1)
         where T : new()
     {
-        using SqlConnection connection = new(_connectionString);
-        using SqlCommand command = new(commandText, connection);
-        SetupCommand(command, commandText, commandType, parameters);
+        try
+        {
+            using SqlConnection connection = new(_connectionString);
+            using SqlCommand command = new(commandText, connection);
+            SetupCommand(command, commandText, commandType, parameters);
         
-        await connection.OpenAsync();
+            await connection.OpenAsync();
 
-        // Execute the command asynchronously and get the data reader
-        using SqlDataReader reader = await command.ExecuteReaderAsync();
-        // Map the results to a list of objects of the specified type
-        return MapResultsToModels<T>(reader, selectTop);
+            // Execute the command asynchronously and get the data reader
+            using SqlDataReader reader = await command.ExecuteReaderAsync();
+            // Map the results to a list of objects of the specified type
+            return MapResultsToModels<T>(reader, selectTop);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 }
