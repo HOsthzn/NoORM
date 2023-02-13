@@ -14,62 +14,126 @@ In conclusion, while ORMs like Entity Framework can simplify the process of work
 
 ___
 
-## Usage Examples of AdoNet Class
-AdoNet is a class in C# that provides a simple way to interact with a database using ADO.NET. The class is initialized with a connection string, and it provides several methods to execute database commands such as stored procedures, text commands, and scalar queries.
+## AdoNet Class Usage Examples
 
-Here are some examples of how to use the AdoNet class:
+The AdoNet class provides several functions to execute SQL commands, retrieve results and manipulate data in a database using ADO.NET. Here's an example of how to use the different functions of the AdoNet class.
 
-### Initializing the AdoNet Class
+### ExecuteCommand
+This method executes a non-query command, such as an INSERT, UPDATE, or DELETE statement, against a database and returns the number of rows affected and the parameters used during the execution.
 ```csharp
-string connectionString = "Data Source=(local);Initial Catalog=MyDatabase;Integrated Security=True;";
-AdoNet ado = new AdoNet(connectionString);
-```
+string connectionString = "Data Source=(local);Initial Catalog=TestDB;Integrated Security=True";
+AdoNet adoNet = new AdoNet(connectionString);
 
-
-### Executing a Stored Procedure
-```csharp
-string storedProcName = "sp_GetEmployees";
-SqlParameter[] parameters = new SqlParameter[] {
-    new SqlParameter("@EmpID", SqlDbType.Int) { Value = 100 }
+SqlParameter[] parameters = 
+{
+    new SqlParameter("@firstName", "John"),
+    new SqlParameter("@lastName", "Doe")
 };
 
-var result = ado.ExecuteCommand(storedProcName, CommandType.StoredProcedure, parameters);
+var result = adoNet.ExecuteCommand("INSERT INTO dbo.Employees (FirstName, LastName) VALUES (@firstName, @lastName)",
+    CommandType.Text, parameters);
+
+Console.WriteLine("Number of rows affected: " + result.rowsAffected);
 ```
 
-### Executing a Stored Procedure Asynchronously
+### ExecuteCommandAsync
+This method is the asynchronous version of ExecuteCommand. It executes a non-query command asynchronously and returns the number of rows affected and the parameters used during the execution.
 ```csharp
-string storedProcName = "sp_GetEmployees";
-SqlParameter[] parameters = new SqlParameter[] {
-    new SqlParameter("@EmpID", SqlDbType.Int) { Value = 100 }
+string connectionString = "Data Source=(local);Initial Catalog=TestDB;Integrated Security=True";
+AdoNet adoNet = new AdoNet(connectionString);
+
+SqlParameter[] parameters = 
+{
+    new SqlParameter("@firstName", "John"),
+    new SqlParameter("@lastName", "Doe")
 };
 
-var result = await ado.ExecuteCommandAsync(storedProcName, CommandType.StoredProcedure, parameters);
+var result = await adoNet.ExecuteCommandAsync("INSERT INTO dbo.Employees (FirstName, LastName) VALUES (@firstName, @lastName)",
+    CommandType.Text, parameters);
+
+Console.WriteLine("Number of rows affected: " + result.rowsAffected);
 ```
 
-### Executing a T-SQL Command
+### ExecuteCommandDataSet
+This method executes a command and returns the results in a DataSet.
 ```csharp
-string tsqlCommand = "UPDATE Employees SET FirstName='John' WHERE EmpID=100";
+string connectionString = "Data Source=(local);Initial Catalog=TestDB;Integrated Security=True";
+AdoNet adoNet = new AdoNet(connectionString);
 
-var result = ado.ExecuteCommand(tsqlCommand, CommandType.Text);
+var result = adoNet.ExecuteCommandDataSet("SELECT * FROM dbo.Employees", CommandType.Text);
+
+foreach (DataRow row in result.Tables[0].Rows)
+{
+    Console.WriteLine("First Name: " + row["FirstName"] + ", Last Name: " + row["LastName"]);
+}
 ```
 
-### Executing a T-SQL Command Asynchronously
+### ExecuteScalar
+ExecuteScalar is used to execute a command that returns a single value as a result. The function returns an object that can be cast to the appropriate data type.
 ```csharp
-string tsqlCommand = "UPDATE Employees SET FirstName='John' WHERE EmpID=100";
+string connectionString = "Your connection string here";
+AdoNet adoNet = new AdoNet(connectionString);
 
-var result = await ado.ExecuteCommandAsync(tsqlCommand, CommandType.Text);
+string commandText = "SELECT COUNT(*) FROM dbo.TableName";
+CommandType commandType = CommandType.Text;
+
+object result = adoNet.ExecuteCommand(commandText, commandType);
+
+int count = (int) result;
+Console.WriteLine("Number of rows in TableName: " + count);
 ```
 
-### Executing a Scalar Query
+### ExecuteScalarAsync
+This example is similar to the previous example, but uses the asynchronous version of the ExecuteScalar function. The function returns a Task<object>.
 ```csharp
-string tsqlCommand = "SELECT COUNT(*) FROM Employees";
+string connectionString = "Your connection string here";
+AdoNet adoNet = new AdoNet(connectionString);
 
-var result = ado.ExecuteScalar<int>(tsqlCommand, CommandType.Text);
+string commandText = "SELECT COUNT(*) FROM dbo.TableName";
+CommandType commandType = CommandType.Text;
+
+object result = await adoNet.ExecuteCommandAsync(commandText, commandType);
+
+int count = (int) result;
+Console.WriteLine("Number of rows in TableName: " + count);
 ```
 
-### Executing a Scalar Query Asynchronously
+### ExecuteReader
+ExecuteReader is used to execute a query and map the results to a list of objects.
 ```csharp
-string tsqlCommand = "SELECT COUNT(*) FROM Employees";
+List<User> users = adoNet.ExecuteReader<User>("SELECT * FROM Users", CommandType.Text);
+```
 
-var result = await ado.ExecuteScalarAsync<int>(tsqlCommand, CommandType.Text);
+Executing a stored procedure and mapping the results to a list of objects
+```csharp
+List<User> users = adoNet.ExecuteReader<User>("GetUsers", CommandType.StoredProcedure);
+```
+
+OR, Executing a stored procedure with parameters and mapping the results to a list of objects
+```csharp
+SqlParameter[] parameters = new[]
+{
+    new SqlParameter("@city", "London"),
+};
+
+List<User> users = adoNet.ExecuteReader<User>("GetUsersByCity", CommandType.StoredProcedure, parameters);
+```
+
+### ExecuteReaderAsync
+This example is similar to the previous example, but uses the asynchronous version of the ExecuteReaderAsync function,
+```csharp
+List<User> users = await adoNet.ExecuteReaderAsync<User>("SELECT * FROM Users", CommandType.Text);
+```
+
+```csharp
+List<User> users = await adoNet.ExecuteReaderAsync<User>("GetUsers", CommandType.StoredProcedure);
+```
+
+```csharp
+SqlParameter[] parameters = new[]
+{
+    new SqlParameter("@city", "London"),
+};
+
+List<User> users = await adoNet.ExecuteReaderAsync<User>("GetUsersByCity", CommandType.StoredProcedure, parameters);
 ```
