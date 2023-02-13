@@ -237,7 +237,8 @@ public class AdoNet
             index ??= model.GetType()
                 .GetProperties()
                 .ToDictionary(propertyInfo => propertyInfo.Name,
-                    propertyInfo => reader.GetOrdinal(propertyInfo.Name));
+                    propertyInfo => reader.GetOrdinal(propertyInfo.Name)
+                             , StringComparer.OrdinalIgnoreCase);
 
             // Loop through the properties in the index
             foreach (KeyValuePair<string, int> keyValuePair in index)
