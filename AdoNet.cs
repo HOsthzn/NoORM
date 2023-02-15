@@ -35,7 +35,6 @@ public class AdoNet
     /// <param name="commandText">The text of the command to be executed.</param>
     /// <param name="commandType">The type of command to be executed (default is Stored Procedure).</param>
     /// <param name="parameters">The parameters of the command to be executed.</param>
-    /// <param name="outParameters">The output parameters of the command to be executed.</param>
     /// <returns>An anonymous object that contains the collection of parameters used during the execution of the command and the number of rows affected.</returns>
     public object ExecuteCommand( string           commandText,
                                   CommandType      commandType = CommandType.StoredProcedure,
@@ -70,7 +69,6 @@ public class AdoNet
     /// <param name="commandText">The text of the command to be executed.</param>
     /// <param name="commandType">The type of command to be executed. Default is stored procedure.</param>
     /// <param name="parameters">An array of parameters to be passed to the command. Optional.</param>
-    /// <param name="outParameters">An array of output parameters. Optional.</param>
     /// <returns>An anonymous object that contains the collection of parameters used during the execution of the command and the number of rows affected.</returns>
     public async Task< object > ExecuteCommandAsync( string           commandText,
                                                      CommandType      commandType = CommandType.StoredProcedure,
@@ -105,7 +103,6 @@ public class AdoNet
     /// <param name="commandText">The text of the command to be executed.</param>
     /// <param name="commandType">The type of command to be executed (default is Stored Procedure).</param>
     /// <param name="parameters">The parameters of the command to be executed.</param>
-    /// <param name="outParameters">The output parameters of the command to be executed.</param>
     /// <returns>The DataSet containing the results of the command.</returns>
     public DataSet ExecuteCommandDataSet( string           commandText,
                                           CommandType      commandType = CommandType.StoredProcedure,
@@ -145,7 +142,6 @@ public class AdoNet
     /// <param name="commandText">The T-SQL command to be executed.</param>
     /// <param name="commandType">The type of the command, either a stored procedure or T-SQL text.</param>
     /// <param name="parameters">An array of parameters to pass to the command, if any.</param>
-    /// <param name="outParameters">An array of output parameters to pass to the command, if any.</param>
     /// <returns>An anonymous object that contains the collection of parameters used during the execution and the result of the query, converted to type `T`.</returns>
     public object ExecuteScalar< T >( string           commandText,
                                       CommandType      commandType = CommandType.StoredProcedure,
@@ -183,7 +179,6 @@ public class AdoNet
     /// <param name="commandText">The text of the command to be executed.</param>
     /// <param name="commandType">The type of the command to be executed.</param>
     /// <param name="parameters">The parameters of the command, if any.</param>
-    /// <param name="outParameters">The output parameters of the command, if any.</param>
     /// <returns>A tuple containing the result of the scalar command and the output parameters.</returns>
     public async Task< object > ExecuteScalarAsync< T >( string           commandText,
                                                          CommandType      commandType = CommandType.StoredProcedure,
