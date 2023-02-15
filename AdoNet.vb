@@ -1,3 +1,9 @@
+Imports System
+Imports System.Collections.Generic
+Imports System.Linq
+Imports System.Reflection
+Imports System.Threading.Tasks
+
 Public Class AdoNet
 
     Private ReadOnly _connectionString As String
@@ -15,8 +21,7 @@ Public Class AdoNet
 
     ' This function sets up a SqlCommand object with the given command text, type, and parameters.
     Private Shared Sub SetupCommand(command As SqlCommand, commandText As String, commandType As CommandType,
-    Optional parameters As SqlParameter() = Nothing,
-    Optional outParameters As SqlParameter() = Nothing)
+    Optional parameters As SqlParameter() = Nothing)
 
         ' Set the command text for the SqlCommand object
         command.CommandText = commandText
@@ -27,13 +32,6 @@ Public Class AdoNet
         ' If parameters are passed, add them to the SqlCommand object's parameters collection
         If parameters IsNot Nothing Then command.Parameters.AddRange(parameters)
 
-        ' If output parameters are passed, add them to the SqlCommand object's parameters collection
-        If outParameters Is Nothing Then Return
-        For Each parameter In outParameters
-            If parameter.Direction = ParameterDirection.Output Then
-                command.Parameters.Add(parameter)
-            End If
-        Next
     End Sub
 
     ''' <summary>
@@ -42,19 +40,17 @@ Public Class AdoNet
     ''' <param name="commandText">The text of the command to be executed.</param>
     ''' <param name="commandType">The type of command to be executed (default is Stored Procedure).</param>
     ''' <param name="parameters">The parameters of the command to be executed.</param>
-    ''' <param name="outParameters">The output parameters of the command to be executed.</param>
     ''' <returns>An anonymous object that contains the collection of parameters used during the execution of the command and the number of rows affected.</returns>
     Public Function ExecuteCommand(commandText As String,
     Optional commandType As CommandType = CommandType.StoredProcedure,
-    Optional parameters As SqlParameter() = Nothing,
-    Optional outParameters As SqlParameter() = Nothing) As Object
+    Optional parameters As SqlParameter() = Nothing) As Object
         If String.IsNullOrEmpty(commandText) Then
             Throw New ArgumentException("Value cannot be null or empty.", NameOf(commandText))
         End If
         Try
             Using connection As New SqlConnection(_connectionString)
                 Using command As New SqlCommand(commandText, connection)
-                    SetupCommand(command, commandText, commandType, parameters, outParameters)
+                    SetupCommand(command, commandText, commandType, parameters)
 
                     connection.Open()
 
@@ -77,18 +73,16 @@ Public Class AdoNet
     '''<param name="commandText">The text of the command to be executed.</param>
     '''<param name="commandType">The type of command to be executed. Default Is stored procedure.</param>
     '''<param name="parameters">An array of parameters to be passed to the command. Optional.</param>
-    '''<param name="outParameters">An array of output parameters. Optional.</param>
     '''<returns>An anonymous object that contains the collection of parameters used during the execution of the command And the number of rows affected.</returns>
     Public Async Function ExecuteCommandAsync(ByVal commandText As String,
-        Optional ByVal commandType As CommandType = CommandType.StoredProcedure, Optional ByVal parameters As SqlParameter() = Nothing,
-        Optional ByVal outParameters As SqlParameter() = Nothing) As Task(Of Object)
+        Optional ByVal commandType As CommandType = CommandType.StoredProcedure, Optional ByVal parameters As SqlParameter() = Nothing) As Task(Of Object)
         If String.IsNullOrEmpty(commandText) Then
             Throw New ArgumentException("Value cannot be null or empty.", NameOf(commandText))
         End If
         Try
             Using connection As New SqlConnection(_connectionString)
                 Using command As New SqlCommand(commandText, connection)
-                    SetupCommand(command, commandText, commandType, parameters, outParameters)
+                    SetupCommand(command, commandText, commandType, parameters)
 
                     Await connection.OpenAsync()
 
@@ -110,12 +104,10 @@ Public Class AdoNet
     ''' <param name="commandText">The text of the command to be executed.</param>
     ''' <param name="commandType">The type of command to be executed (default is Stored Procedure).</param>
     ''' <param name="parameters">The parameters of the command to be executed.</param>
-    ''' <param name="outParameters">The output parameters of the command to be executed.</param>
     ''' <returns>The DataSet containing the results of the command.</returns>
     Public Function ExecuteCommandDataSet(commandText As String,
     Optional commandType As CommandType = CommandType.StoredProcedure,
-    Optional parameters As SqlParameter() = Nothing,
-    Optional outParameters As SqlParameter() = Nothing) As DataSet
+    Optional parameters As SqlParameter() = Nothing) As DataSet
         If String.IsNullOrEmpty(commandText) Then
             Throw New ArgumentException("Value cannot be null or empty.", NameOf(commandText))
         End If
@@ -123,7 +115,7 @@ Public Class AdoNet
         Try
             Using connection As New SqlConnection(_connectionString)
                 Using command As New SqlCommand(commandText, connection)
-                    SetupCommand(command, commandText, commandType, parameters, outParameters)
+                    SetupCommand(command, commandText, commandType, parameters)
 
                     connection.Open()
 
@@ -152,11 +144,10 @@ Public Class AdoNet
     '''<param name="commandText">The T-SQL command to be executed.</param>
     '''<param name="commandType">The type of the command, either a stored procedure Or T-SQL text.</param>
     '''<param name="parameters">An array of parameters to pass to the command, if any.</param>
-    '''<param name="outParameters">An array of output parameters to pass to the command, if any.</param>
     '''<returns>An anonymous object that contains the collection of parameters used during the execution And the result of the query, converted to type `T`.</returns>
     Public Function ExecuteScalar(Of T)(ByVal commandText As String,
         Optional ByVal commandType As CommandType = CommandType.StoredProcedure,
-        Optional ByVal parameters As SqlParameter() = Nothing, Optional ByVal outParameters As SqlParameter() = Nothing) As Object
+        Optional ByVal parameters As SqlParameter() = Nothing) As Object
         If String.IsNullOrEmpty(commandText) Then
             Throw New ArgumentException("Value cannot be null or empty.", NameOf(commandText))
         End If
@@ -164,7 +155,7 @@ Public Class AdoNet
         Try
             Using connection As New SqlConnection(_connectionString)
                 Using command As New SqlCommand(commandText, connection)
-                    SetupCommand(command, commandText, commandType, parameters, outParameters)
+                    SetupCommand(command, commandText, commandType, parameters)
 
                     ' Open the connection asynchronously.
                     connection.Open()
@@ -186,18 +177,17 @@ Public Class AdoNet
     ''' <param name="commandText">The text of the command to be executed.</param>
     ''' <param name="commandType">The type of the command to be executed.</param>
     ''' <param name="parameters">The parameters of the command, if any.</param>
-    ''' <param name="outParameters">The output parameters of the command, if any.</param>
     ''' <returns>A tuple containing the result of the scalar command and the output parameters.</returns>
     Public Async Function ExecuteScalarAsync(Of T)(commandText As String,
     Optional commandType As CommandType = CommandType.StoredProcedure,
-    Optional parameters As SqlParameter() = Nothing, Optional outParameters As SqlParameter() = Nothing) As Task(Of Object)
+    Optional parameters As SqlParameter() = Nothing) As Task(Of Object)
         If String.IsNullOrEmpty(commandText) Then
             Throw New ArgumentException("Value cannot be null or empty.", NameOf(commandText))
         End If
         Try
             Using connection As New SqlConnection(_connectionString)
                 Using command As New SqlCommand(commandText, connection)
-                    SetupCommand(command, commandText, commandType, parameters, outParameters)
+                    SetupCommand(command, commandText, commandType, parameters)
                     ' Open the connection asynchronously.
                     Await connection.OpenAsync()
                     'return an anonymous object that contains the collection of parameters used during the execution and the result of the query, converted to type T
