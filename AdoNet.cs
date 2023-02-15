@@ -2,22 +2,22 @@ public class AdoNet
 {
     private readonly string _connectionString;
 
-    public AdoNet(string connectionString)
+    public AdoNet( string connectionString )
     {
         // Create a SqlConnectionStringBuilder object from the provided connection string
-        SqlConnectionStringBuilder builder = new(connectionString)
-        {
-            // Set the "Pooling" property of the SqlConnectionStringBuilder to true
-            Pooling = true
-        };
+        SqlConnectionStringBuilder builder = new( connectionString )
+                                             {
+                                                 // Set the "Pooling" property of the SqlConnectionStringBuilder to true
+                                                 Pooling = true
+                                             };
 
         // Update the connection string to reflect the changes made to the SqlConnectionStringBuilder
         _connectionString = builder.ConnectionString;
     }
 
     // This function sets up a SqlCommand object with the given command text, type, and parameters. 
-    private static void SetupCommand(SqlCommand command, string commandText, CommandType commandType,
-        SqlParameter[]? parameters = null, SqlParameter[]? outParameters = null)
+    private static void SetupCommand( SqlCommand       command, string commandText, CommandType commandType,
+                                      SqlParameter[ ]? parameters = null )
     {
         // Set the command text for the SqlCommand object
         command.CommandText = commandText;
@@ -26,13 +26,7 @@ public class AdoNet
         command.CommandType = commandType;
 
         // If parameters are passed, add them to the SqlCommand object's parameters collection
-        if (parameters != null) command.Parameters.AddRange(parameters);
-
-        // If output parameters are passed, add them to the SqlCommand object's parameters collection
-        if (outParameters == null) return;
-        foreach (SqlParameter parameter in outParameters)
-            if (parameter.Direction == ParameterDirection.Output)
-                command.Parameters.Add(parameter);
+        if ( parameters != null ) command.Parameters.AddRange( parameters );
     }
 
     /// <summary>
@@ -43,28 +37,28 @@ public class AdoNet
     /// <param name="parameters">The parameters of the command to be executed.</param>
     /// <param name="outParameters">The output parameters of the command to be executed.</param>
     /// <returns>An anonymous object that contains the collection of parameters used during the execution of the command and the number of rows affected.</returns>
-    public object ExecuteCommand(string commandText,
-        CommandType commandType = CommandType.StoredProcedure, SqlParameter[]? parameters = null,
-        SqlParameter[]? outParameters = null)
+    public object ExecuteCommand( string           commandText,
+                                  CommandType      commandType = CommandType.StoredProcedure,
+                                  SqlParameter[ ]? parameters  = null )
     {
-        if (string.IsNullOrEmpty(commandText))
-            throw new ArgumentException("Value cannot be null or empty.", nameof(commandText));
+        if ( string.IsNullOrEmpty( commandText ) )
+            throw new ArgumentException( "Value cannot be null or empty.", nameof( commandText ) );
         try
         {
-            using SqlConnection connection = new(_connectionString);
-            using SqlCommand command = new(commandText, connection);
-            SetupCommand(command, commandText, commandType, parameters, outParameters);
+            using SqlConnection connection = new( _connectionString );
+            using SqlCommand    command    = new( commandText, connection );
+            SetupCommand( command, commandText, commandType, parameters );
 
-            connection.Open();
+            connection.Open( );
 
             // execute the command against the database
-            int rows = command.ExecuteNonQuery();
+            int rows = command.ExecuteNonQuery( );
             // Return an anonymous object containing the collection of parameters used during the execution and the number of rows affected by the command.
             return new { command.Parameters, rowsAffected = rows };
         }
-        catch (Exception e)
+        catch ( Exception e )
         {
-            Console.WriteLine("An error occurred in ExecuteCommand: " + e.Message);
+            Console.WriteLine( "An error occurred in ExecuteCommand: " + e.Message );
             throw;
         }
     }
@@ -78,28 +72,28 @@ public class AdoNet
     /// <param name="parameters">An array of parameters to be passed to the command. Optional.</param>
     /// <param name="outParameters">An array of output parameters. Optional.</param>
     /// <returns>An anonymous object that contains the collection of parameters used during the execution of the command and the number of rows affected.</returns>
-    public async Task<object> ExecuteCommandAsync(string commandText,
-        CommandType commandType = CommandType.StoredProcedure, SqlParameter[]? parameters = null,
-        SqlParameter[]? outParameters = null)
+    public async Task< object > ExecuteCommandAsync( string           commandText,
+                                                     CommandType      commandType = CommandType.StoredProcedure,
+                                                     SqlParameter[ ]? parameters  = null )
     {
-        if (string.IsNullOrEmpty(commandText))
-            throw new ArgumentException("Value cannot be null or empty.", nameof(commandText));
+        if ( string.IsNullOrEmpty( commandText ) )
+            throw new ArgumentException( "Value cannot be null or empty.", nameof( commandText ) );
         try
         {
-            using SqlConnection connection = new(_connectionString);
-            using SqlCommand command = new(commandText, connection);
-            SetupCommand(command, commandText, commandType, parameters, outParameters);
+            using SqlConnection connection = new( _connectionString );
+            using SqlCommand    command    = new( commandText, connection );
+            SetupCommand( command, commandText, commandType, parameters );
 
-            await connection.OpenAsync();
+            await connection.OpenAsync( );
 
             // Execute the command asynchronously.
-            int rows = await command.ExecuteNonQueryAsync();
+            int rows = await command.ExecuteNonQueryAsync( );
             // Return an anonymous object containing the collection of parameters used during the execution and the number of rows affected by the command.
             return new { command.Parameters, rowsAffected = rows };
         }
-        catch (Exception e)
+        catch ( Exception e )
         {
-            Console.WriteLine("An error occurred in ExecuteCommandAsync: " + e.Message);
+            Console.WriteLine( "An error occurred in ExecuteCommandAsync: " + e.Message );
             throw;
         }
     }
@@ -113,33 +107,33 @@ public class AdoNet
     /// <param name="parameters">The parameters of the command to be executed.</param>
     /// <param name="outParameters">The output parameters of the command to be executed.</param>
     /// <returns>The DataSet containing the results of the command.</returns>
-    public DataSet ExecuteCommandDataSet(string commandText,
-        CommandType commandType = CommandType.StoredProcedure, SqlParameter[]? parameters = null,
-        SqlParameter[]? outParameters = null)
+    public DataSet ExecuteCommandDataSet( string           commandText,
+                                          CommandType      commandType = CommandType.StoredProcedure,
+                                          SqlParameter[ ]? parameters  = null )
     {
-        if (string.IsNullOrEmpty(commandText))
-            throw new ArgumentException("Value cannot be null or empty.", nameof(commandText));
+        if ( string.IsNullOrEmpty( commandText ) )
+            throw new ArgumentException( "Value cannot be null or empty.", nameof( commandText ) );
         try
         {
-            using SqlConnection connection = new(_connectionString);
-            using SqlCommand command = new(commandText, connection);
-            SetupCommand(command, commandText, commandType, parameters, outParameters);
+            using SqlConnection connection = new( _connectionString );
+            using SqlCommand    command    = new( commandText, connection );
+            SetupCommand( command, commandText, commandType, parameters );
 
-            connection.Open();
+            connection.Open( );
 
             // Create a new DataSet to store the results of the command
-            DataSet result = new();
+            DataSet result = new( );
             // Create a new SqlDataAdapter using the command
-            using SqlDataAdapter adapter = new(command);
+            using SqlDataAdapter adapter = new( command );
             // Fill the result DataSet with the results of the command
-            adapter.Fill(result);
+            adapter.Fill( result );
 
             // return the DataSet containing the results of the command
             return result;
         }
-        catch (Exception e)
+        catch ( Exception e )
         {
-            Console.WriteLine("An error occurred in ExecuteCommandDataSet: " + e.Message);
+            Console.WriteLine( "An error occurred in ExecuteCommandDataSet: " + e.Message );
             throw;
         }
     }
@@ -153,27 +147,30 @@ public class AdoNet
     /// <param name="parameters">An array of parameters to pass to the command, if any.</param>
     /// <param name="outParameters">An array of output parameters to pass to the command, if any.</param>
     /// <returns>An anonymous object that contains the collection of parameters used during the execution and the result of the query, converted to type `T`.</returns>
-    public object ExecuteScalar<T>(string commandText,
-        CommandType commandType = CommandType.StoredProcedure,
-        SqlParameter[]? parameters = null, SqlParameter[]? outParameters = null)
+    public object ExecuteScalar< T >( string           commandText,
+                                      CommandType      commandType = CommandType.StoredProcedure,
+                                      SqlParameter[ ]? parameters  = null )
     {
-        if (string.IsNullOrEmpty(commandText))
-            throw new ArgumentException("Value cannot be null or empty.", nameof(commandText));
+        if ( string.IsNullOrEmpty( commandText ) )
+            throw new ArgumentException( "Value cannot be null or empty.", nameof( commandText ) );
         try
         {
-            using SqlConnection connection = new(_connectionString);
-            using SqlCommand command = new(commandText, connection);
-            SetupCommand(command, commandText, commandType, parameters, outParameters);
+            using SqlConnection connection = new( _connectionString );
+            using SqlCommand    command    = new( commandText, connection );
+            SetupCommand( command, commandText, commandType, parameters );
 
             // Open the connection asynchronously.
-            connection.Open();
+            connection.Open( );
 
             //return an anonymous object that contains the collection of parameters used during the execution and the result of the query, converted to type T
-            return new { command.Parameters, result = (T)Convert.ChangeType(command.ExecuteScalar(), typeof(T)) };
+            return new
+                   {
+                       command.Parameters, result = ( T )Convert.ChangeType( command.ExecuteScalar( ), typeof( T ) )
+                   };
         }
-        catch (Exception e)
+        catch ( Exception e )
         {
-            Console.WriteLine("An error occurred in ExecuteScalar: " + e.Message);
+            Console.WriteLine( "An error occurred in ExecuteScalar: " + e.Message );
             throw;
         }
     }
@@ -188,72 +185,73 @@ public class AdoNet
     /// <param name="parameters">The parameters of the command, if any.</param>
     /// <param name="outParameters">The output parameters of the command, if any.</param>
     /// <returns>A tuple containing the result of the scalar command and the output parameters.</returns>
-    public async Task<object> ExecuteScalarAsync<T>(string commandText,
-        CommandType commandType = CommandType.StoredProcedure,
-        SqlParameter[]? parameters = null, SqlParameter[]? outParameters = null)
+    public async Task< object > ExecuteScalarAsync< T >( string           commandText,
+                                                         CommandType      commandType = CommandType.StoredProcedure,
+                                                         SqlParameter[ ]? parameters  = null )
     {
-        if (string.IsNullOrEmpty(commandText))
-            throw new ArgumentException("Value cannot be null or empty.", nameof(commandText));
+        if ( string.IsNullOrEmpty( commandText ) )
+            throw new ArgumentException( "Value cannot be null or empty.", nameof( commandText ) );
         try
         {
-            using SqlConnection connection = new(_connectionString);
-            using SqlCommand command = new(commandText, connection);
-            SetupCommand(command, commandText, commandType, parameters, outParameters);
+            using SqlConnection connection = new( _connectionString );
+            using SqlCommand    command    = new( commandText, connection );
+            SetupCommand( command, commandText, commandType, parameters );
 
             // Open the connection asynchronously.
-            await connection.OpenAsync();
+            await connection.OpenAsync( );
             //return an anonymous object that contains the collection of parameters used during the execution and the result of the query, converted to type T
             return new
-            {
-                command.Parameters, result = (T)Convert.ChangeType(await command.ExecuteScalarAsync(), typeof(T))
-            };
+                   {
+                       command.Parameters,
+                       result = ( T )Convert.ChangeType( await command.ExecuteScalarAsync( ), typeof( T ) )
+                   };
         }
-        catch (Exception e)
+        catch ( Exception e )
         {
-            Console.WriteLine("An error occurred in ExecuteScalarAsync: " + e.Message);
+            Console.WriteLine( "An error occurred in ExecuteScalarAsync: " + e.Message );
             throw;
         }
     }
 
 
-    private static List<T> MapResultsToModels<T>(IDataReader reader, int selectTop = -1) where T : new()
+    private static List< T > MapResultsToModels< T >( IDataReader reader, int selectTop = -1 ) where T : new( )
     {
         // List to store the resulting models
-        List<T> models = new();
+        List< T > models = new( );
         // Counter for number of rows read
         int rowCount = 0;
         // Dictionary to store the index of properties in the reader
-        Dictionary<string, int>? index = null;
+        Dictionary< string, int >? index = null;
 
         // Read rows from the reader
-        while (reader.Read())
+        while ( reader.Read( ) )
         {
             // Increment row count
             rowCount++;
 
             // Create a new model instance
-            T model = new();
+            T model = new( );
             // If index is not initialized, initialize it with the names and indices of the properties in the reader
-            index ??= model.GetType()
-                .GetProperties()
-                .ToDictionary(propertyInfo => propertyInfo.Name,
-                    propertyInfo => reader.GetOrdinal(propertyInfo.Name)
-                             , StringComparer.OrdinalIgnoreCase);
+            index ??= model.GetType( )
+                           .GetProperties( )
+                           .ToDictionary( propertyInfo => propertyInfo.Name,
+                                         propertyInfo => reader.GetOrdinal( propertyInfo.Name )
+                                       , StringComparer.OrdinalIgnoreCase );
 
             // Loop through the properties in the index
-            foreach (KeyValuePair<string, int> keyValuePair in index)
+            foreach ( KeyValuePair< string, int > keyValuePair in index )
             {
                 // Get the property info for the current property
-                PropertyInfo property = model.GetType().GetProperty(keyValuePair.Key);
+                PropertyInfo property = model.GetType( ).GetProperty( keyValuePair.Key );
                 // If the property exists and the corresponding value in the reader is not null, set the value of the property in the model
-                if (property != null && reader[keyValuePair.Value] != DBNull.Value)
-                    property.SetValue(model, reader[keyValuePair.Value]);
+                if ( property != null && reader[ keyValuePair.Value ] != DBNull.Value )
+                    property.SetValue( model, reader[ keyValuePair.Value ] );
             }
 
             // Add the model to the list of models
-            models.Add(model);
+            models.Add( model );
             // If the number of rows read is equal to selectTop, break out of the loop
-            if (rowCount == selectTop) break;
+            if ( rowCount == selectTop ) break;
         }
 
         // Return the list of models
@@ -271,27 +269,27 @@ public class AdoNet
     /// <param name="parameters">The parameters to include with the command.</param>
     /// <param name="selectTop">The maximum number of results to return. Use -1 to return all results.</param>
     /// <returns>A list of objects of the specified type.</returns>
-    public List<T> ExecuteReader<T>(string commandText, CommandType commandType = CommandType.StoredProcedure,
-        SqlParameter[]? parameters = null, int selectTop = -1) where T : new()
+    public List< T > ExecuteReader< T >( string commandText, CommandType commandType = CommandType.StoredProcedure,
+                                         SqlParameter[ ]? parameters = null, int selectTop = -1 ) where T : new( )
     {
-        if (string.IsNullOrEmpty(commandText))
-            throw new ArgumentException("Value cannot be null or empty.", nameof(commandText));
+        if ( string.IsNullOrEmpty( commandText ) )
+            throw new ArgumentException( "Value cannot be null or empty.", nameof( commandText ) );
         try
         {
-            using SqlConnection connection = new(_connectionString);
-            using SqlCommand command = new(commandText, connection);
-            SetupCommand(command, commandText, commandType, parameters);
+            using SqlConnection connection = new( _connectionString );
+            using SqlCommand    command    = new( commandText, connection );
+            SetupCommand( command, commandText, commandType, parameters );
 
-            connection.Open();
+            connection.Open( );
 
             // Execute the command and get the data reader
-            using SqlDataReader reader = command.ExecuteReader();
+            using SqlDataReader reader = command.ExecuteReader( );
             // Map the results to a list of objects of the specified type
-            return MapResultsToModels<T>(reader, selectTop);
+            return MapResultsToModels< T >( reader, selectTop );
         }
-        catch (Exception e)
+        catch ( Exception e )
         {
-            Console.WriteLine("An error occurred in ExecuteReader: " + e.Message);
+            Console.WriteLine( "An error occurred in ExecuteReader: " + e.Message );
             throw;
         }
     }
@@ -306,28 +304,29 @@ public class AdoNet
     /// <param name="parameters">The parameters to include with the command.</param>
     /// <param name="selectTop">The maximum number of results to return. Use -1 to return all results.</param>
     /// <returns>A task that represents the asynchronous operation. The task result is a list of objects of the specified type.</returns>
-    public async Task<List<T>> ExecuteReaderAsync<T>(string commandText,
-        CommandType commandType = CommandType.StoredProcedure, SqlParameter[]? parameters = null, int selectTop = -1)
-        where T : new()
+    public async Task< List< T > > ExecuteReaderAsync< T >( string           commandText,
+                                                            CommandType      commandType = CommandType.StoredProcedure,
+                                                            SqlParameter[ ]? parameters  = null, int selectTop = -1 )
+        where T : new( )
     {
-        if (string.IsNullOrEmpty(commandText))
-            throw new ArgumentException("Value cannot be null or empty.", nameof(commandText));
+        if ( string.IsNullOrEmpty( commandText ) )
+            throw new ArgumentException( "Value cannot be null or empty.", nameof( commandText ) );
         try
         {
-            using SqlConnection connection = new(_connectionString);
-            using SqlCommand command = new(commandText, connection);
-            SetupCommand(command, commandText, commandType, parameters);
+            using SqlConnection connection = new( _connectionString );
+            using SqlCommand    command    = new( commandText, connection );
+            SetupCommand( command, commandText, commandType, parameters );
 
-            await connection.OpenAsync();
+            await connection.OpenAsync( );
 
             // Execute the command asynchronously and get the data reader
-            using SqlDataReader reader = await command.ExecuteReaderAsync();
+            using SqlDataReader reader = await command.ExecuteReaderAsync( );
             // Map the results to a list of objects of the specified type
-            return MapResultsToModels<T>(reader, selectTop);
+            return MapResultsToModels< T >( reader, selectTop );
         }
-        catch (Exception e)
+        catch ( Exception e )
         {
-            Console.WriteLine("An error occurred in ExecuteReaderAsync: " + e.Message);
+            Console.WriteLine( "An error occurred in ExecuteReaderAsync: " + e.Message );
             throw;
         }
     }
