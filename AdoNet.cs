@@ -78,8 +78,8 @@ public class AdoNet
             throw new ArgumentException( "Value cannot be null or empty.", nameof( commandText ) );
         try
         {
-            using SqlConnection connection = new( _connectionString );
-            using SqlCommand    command    = new( commandText, connection );
+            await using SqlConnection connection = new( _connectionString );
+            await using SqlCommand    command    = new( commandText, connection );
             SetupCommand( command, commandText, commandType, parameters );
 
             await connection.OpenAsync( );
@@ -188,8 +188,8 @@ public class AdoNet
             throw new ArgumentException( "Value cannot be null or empty.", nameof( commandText ) );
         try
         {
-            using SqlConnection connection = new( _connectionString );
-            using SqlCommand    command    = new( commandText, connection );
+            await using SqlConnection connection = new( _connectionString );
+            await using SqlCommand    command    = new( commandText, connection );
             SetupCommand( command, commandText, commandType, parameters );
 
             // Open the connection asynchronously.
@@ -308,14 +308,14 @@ public class AdoNet
             throw new ArgumentException( "Value cannot be null or empty.", nameof( commandText ) );
         try
         {
-            using SqlConnection connection = new( _connectionString );
-            using SqlCommand    command    = new( commandText, connection );
+            await using SqlConnection connection = new( _connectionString );
+            await using SqlCommand    command    = new( commandText, connection );
             SetupCommand( command, commandText, commandType, parameters );
 
             await connection.OpenAsync( );
 
             // Execute the command asynchronously and get the data reader
-            using SqlDataReader reader = await command.ExecuteReaderAsync( );
+            await using SqlDataReader reader = await command.ExecuteReaderAsync( );
             // Map the results to a list of objects of the specified type
             return MapResultsToModels< T >( reader, selectTop );
         }
