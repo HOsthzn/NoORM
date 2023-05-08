@@ -77,7 +77,7 @@ AdoNet adoNet = new AdoNet(connectionString);
 string commandText = "SELECT COUNT(*) FROM dbo.TableName";
 CommandType commandType = CommandType.Text;
 
-object result = adoNet.ExecuteCommand(commandText, commandType);
+object result = adoNet.ExecuteScalar(commandText, commandType);
 
 int count = (int) result;
 Console.WriteLine("Number of rows in TableName: " + count);
@@ -92,7 +92,7 @@ AdoNet adoNet = new AdoNet(connectionString);
 string commandText = "SELECT COUNT(*) FROM dbo.TableName";
 CommandType commandType = CommandType.Text;
 
-object result = await adoNet.ExecuteCommandAsync(commandText, commandType);
+object result = await adoNet.ExecuteScalarAsync(commandText, commandType);
 
 int count = (int) result;
 Console.WriteLine("Number of rows in TableName: " + count);
