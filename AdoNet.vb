@@ -252,7 +252,7 @@ Public Class AdoNet
     ''' <param name="parameters">The parameters to include with the command.</param>
     ''' <param name="selectTop">The maximum number of results to return. Use -1 to return all results.</param>
     ''' <returns>A list of objects of the specified type.</returns>
-    Public Function ExecuteReader(Of T As New)(commandText As String, Optional commandType As CommandType = CommandType.StoredProcedure, Optional parameters As SqlParameter() = Nothing, Optional selectTop As Integer = -1) As List(Of T)
+    Public Function ExecuteReader(Of T As {Class, New})(commandText As String, Optional commandType As CommandType = CommandType.StoredProcedure, Optional parameters As SqlParameter() = Nothing, Optional selectTop As Integer = -1) As List(Of T)
         If String.IsNullOrEmpty(commandText) Then
             Throw New ArgumentException("Value cannot be null or empty.", NameOf(commandText))
         End If
@@ -286,7 +286,7 @@ Public Class AdoNet
     ''' <param name="parameters">The parameters to include with the command.</param>
     ''' <param name="selectTop">The maximum number of results to return. Use -1 to return all results.</param>
     ''' <returns>A task that represents the asynchronous operation. The task result is a list of objects of the specified type.</returns>
-    Public Async Function ExecuteReaderAsync(Of T As New)(ByVal commandText As String, Optional ByVal commandType As CommandType = CommandType.StoredProcedure, Optional ByVal parameters As SqlParameter() = Nothing, Optional ByVal selectTop As Integer = -1) As Task(Of List(Of T))
+    Public Async Function ExecuteReaderAsync(Of T As {Class, New})(ByVal commandText As String, Optional ByVal commandType As CommandType = CommandType.StoredProcedure, Optional ByVal parameters As SqlParameter() = Nothing, Optional ByVal selectTop As Integer = -1) As Task(Of List(Of T))
         If String.IsNullOrEmpty(commandText) Then
             Throw New ArgumentException("Value cannot be null or empty.", NameOf(commandText))
         End If
